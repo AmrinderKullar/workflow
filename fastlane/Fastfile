@@ -1,0 +1,43 @@
+platform :android do
+  desc 'New app for testing'
+  lane :bump_apk_version do
+    version = appcenter_fetch_version_number(
+      app_name:'TestApp',
+      api_token:'dace49111a2ceabaa9d7dcaf4b19f918042cd635',
+      owner_name: 'Amrinder Kullar'
+    )
+
+    current_build = version['build_number'].to_i + 1
+    android_set_version_code(
+      version_code: current_build,
+      gradle_file:'./android/app/build.gradle'
+    )
+  end
+
+  # dace49111a2ceabaa9d7dcaf4b19f918042cd635
+  lane :build_android do
+    gradle(
+      task: 'clean',
+      project_dir: './android'
+    )
+    gradle(
+      task: 'assemble',
+      build_type: 'release',
+      project_dir: './android',
+    )
+  end
+
+  desc 'Upload to app center'
+  lane :upload do
+    # bump_apk_version
+    # build_android
+
+    appcenter_upload(
+      # app_name: 'test-app',
+      api_token: '80d5ac28d173dbf1cf8ed0518c1aa1f2ca389347',
+      owner_name: 'Amrinder Kullar',
+      destinations: '*',
+      file: './android/app/build/outputs/apk/release/release.apk'
+    )
+  end
+end
